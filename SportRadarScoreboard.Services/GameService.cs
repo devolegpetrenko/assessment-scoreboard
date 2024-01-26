@@ -1,35 +1,50 @@
 ﻿using SportRadarScoreboard.Core.Games;
 using SportRadarScoreboard.Core.Games.Models;
+using SportRadarScoreboard.Services.Exceptions;
 
-namespace SportRadarScoreboard.Services
+namespace SportRadarScoreboard.Services;
+
+public class GameService : IGameService
 {
-    public class GameService : IGameService
+    private IGameRepository _gameRepository;
+
+    public GameService(IGameRepository gameRepository)
     {
-        private GameRepository _gameRepository;
+        _gameRepository = gameRepository;
+    }
 
-        public GameService(GameRepository gameRepository)
+    public Guid StartGame(string homeTeam, string awayTeam)
+    {
+        if (string.IsNullOrWhiteSpace(homeTeam))
         {
-            _gameRepository = gameRepository;
+            throw new InvalidInputException("invalid home team name");
         }
 
-        public Guid StartGame(string homeTeam, string awayTeam)
+        if (string.IsNullOrWhiteSpace(awayTeam))
         {
-            throw new NotImplementedException();
+            throw new InvalidInputException("invalid away team name");
         }
 
-        public void UpdateScore(Guid id, int homeScore, string awayScore)
+        if (_gameRepository.IsGameInProgress(homeTeam, awayTeam))
         {
-            throw new NotImplementedException();
+            throw new InvalidRequestException("game is in progress");
         }
 
-        public void FinishGame(Guid id)
-        {
-            throw new NotImplementedException();
-        }
+        return _gameRepository.AddGame(homeTeam, awayTeam);
+    }
 
-        public List<GameModel> GetInProgressSummary()
-        {
-            throw new NotImplementedException();
-        }
+    public void UpdateScore(Guid id, int homeScore, string awayScore)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void FinishGame(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<GameModel> GetInProgressSummary()
+    {
+        throw new NotImplementedException();
     }
 }
