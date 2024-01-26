@@ -33,9 +33,21 @@ public class GameService : IGameService
         return _gameRepository.AddGame(homeTeam, awayTeam);
     }
 
-    public void UpdateScore(Guid id, int homeScore, string awayScore)
+    public void UpdateScore(Guid id, int homeScore, int awayScore)
     {
-        throw new NotImplementedException();
+        var game = _gameRepository.GetGameDetails(id);
+
+        if (game is null)
+        {
+            throw new InvalidInputException("invalid game id");
+        }
+
+        if (game.IsFinished)
+        {
+            throw new InvalidRequestException("can not change score of finished game");
+        }
+
+        _gameRepository.ChangeGameScore(id, homeScore, awayScore);
     }
 
     public void FinishGame(Guid id)

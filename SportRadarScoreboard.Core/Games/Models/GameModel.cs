@@ -7,5 +7,5 @@ public class GameModel
     public string HomeTeam { get; set; }
     public string AwayTeam { get; set; }
 
-    public GameScore Score { get; set; }
+    public Score Score { get; set; }
 }

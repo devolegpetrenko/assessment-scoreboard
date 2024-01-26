@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Moq;
 using SportRadarScoreboard.Core.Games;
+using SportRadarScoreboard.Core.Games.Models;
 using SportRadarScoreboard.Services;
 using SportRadarScoreboard.Services.Exceptions;
 
@@ -14,7 +15,7 @@ public class GameServiceTest
     }
 
     [Test]
-    public void StartGame_ValidTeamNames_OutputValidId()
+    public void StartGame_ValidTeamNames_OutputValidGameId()
     {
         //arrange
         var homeTeam = Guid.NewGuid().ToString();
@@ -115,5 +116,52 @@ public class GameServiceTest
 
         //assert
         gameId.Should().NotBeEmpty();
+    }
+
+    [Test]
+    public void UpdateScore_ExistingGame_ChangeGameScoreRequested()
+    {
+        //arrange
+        var gameId = Guid.NewGuid();
+        var homeScore = 2;
+        var awayScore = 5;
+
+        var gameRepository = new Mock<IGameRepository>(MockBehavior.Strict);
+        gameRepository.Setup(x => x.GetGameDetails(It.Is<Guid>(x => x == gameId))).Returns(new GameDetails
+        {
+            Id = gameId,
+            IsFinished = false,
+        });
+        gameRepository.Setup(x => x.ChangeGameScore(It.Is<Guid>(x => x == gameId), It.Is<int>(x => x == homeScore), It.Is<int>(x => x == awayScore))).Verifiable();
+
+        var sut = new GameService(gameRepository.Object);
+
+        //act
+        sut.UpdateScore(gameId, homeScore, awayScore);
+
+        //assert
+        gameRepository.Verify(x => x.ChangeGameScore(It.Is<Guid>(x => x == gameId), It.Is<int>(x => x == homeScore), It.Is<int>(x => x == awayScore)), Times.Once);
+    }
+
+    [Test]
+    public void UpdateScore_NotExistingGame_ThrowError()
+    {
+        //arrange
+        var gameId = Guid.NewGuid();
+        var homeScore = 2;
+        var awayScore = 5;
+
+        var gameRepository = new Mock<IGameRepository>(MockBehavior.Strict);
+        gameRepository.Setup(x => x.GetGameDetails(It.Is<Guid>(x => x == gameId))).Returns(value: null);
+        gameRepository.Setup(x => x.ChangeGameScore(It.Is<Guid>(x => x == gameId), It.Is<int>(x => x == homeScore), It.Is<int>(x => x == awayScore))).Verifiable();
+
+        var sut = new GameService(gameRepository.Object);
+
+        //act
+        var action = () => sut.UpdateScore(gameId, homeScore, awayScore);
+
+        //assert
+        action.Should().Throw<InvalidInputException>().WithMessage("invalid game id");
+        gameRepository.Verify(x => x.ChangeGameScore(It.Is<Guid>(x => x == gameId), It.Is<int>(x => x == homeScore), It.Is<int>(x => x == awayScore)), times: Times.Never);
     }
 }

@@ -1,10 +1,14 @@
-﻿namespace SportRadarScoreboard.Core.Games;
+﻿using SportRadarScoreboard.Core.Games.Models;
+
+namespace SportRadarScoreboard.Core.Games;
 
 public interface IGameRepository
 {
-    public Guid AddGame(string homeTeam, string awayTeam);
-    public bool IsGameInProgress(string homeTeam, string awayTeam);
-    public void ChangeGameScore(Guid id, int homeScore, string awayScore);
-    public void FinishGame(Guid id);
-    public void GetNotFinishedGames();
+    Guid AddGame(string homeTeam, string awayTeam);
+    GameDetails? GetGameDetails(Guid id);
+    bool IsGameInProgress(string homeTeam, string awayTeam);
+    bool IsGameInProgress(Guid id);
+    void ChangeGameScore(Guid id, int homeScore, int awayScore);
+    void FinishGame(Guid id);
+    void GetNotFinishedGames();
 }
