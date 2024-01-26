@@ -48,7 +48,8 @@ public class GameRepository : IGameRepository
 
     public void FinishGame(Guid id)
     {
-        throw new NotImplementedException();
+        var game = _games.FirstOrDefault(x => x.Id == id);
+        game.Finished = true;
     }
 
     public GameDetails? GetGameDetails(Guid id)

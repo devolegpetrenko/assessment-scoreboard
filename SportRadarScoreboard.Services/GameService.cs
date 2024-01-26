@@ -52,7 +52,19 @@ public class GameService : IGameService
 
     public void FinishGame(Guid id)
     {
-        throw new NotImplementedException();
+        var game = _gameRepository.GetGameDetails(id);
+
+        if (game is null)
+        {
+            throw new InvalidInputException("invalid game id");
+        }
+
+        if (game.IsFinished)
+        {
+            throw new InvalidRequestException("game is already finished");
+        }
+
+        _gameRepository.FinishGame(id);
     }
 
     public List<GameModel> GetInProgressSummary()

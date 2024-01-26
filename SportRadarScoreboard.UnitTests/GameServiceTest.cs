@@ -144,6 +144,32 @@ public class GameServiceTest
     }
 
     [Test]
+    public void UpdateScore_ExistingGameIsFinished_ThrowError()
+    {
+        //arrange
+        var gameId = Guid.NewGuid();
+        var homeScore = 2;
+        var awayScore = 5;
+
+        var gameRepository = new Mock<IGameRepository>(MockBehavior.Strict);
+        gameRepository.Setup(x => x.GetGameDetails(It.Is<Guid>(x => x == gameId))).Returns(new GameDetails
+        {
+            Id = gameId,
+            IsFinished = true,
+        });
+        gameRepository.Setup(x => x.ChangeGameScore(It.Is<Guid>(x => x == gameId), It.Is<int>(x => x == homeScore), It.Is<int>(x => x == awayScore))).Verifiable();
+
+        var sut = new GameService(gameRepository.Object);
+
+        //act
+        var action = () => sut.UpdateScore(gameId, homeScore, awayScore);
+
+        //assert
+        action.Should().Throw<InvalidRequestException>().WithMessage("can not change score of finished game");
+        gameRepository.Verify(x => x.ChangeGameScore(It.Is<Guid>(x => x == gameId), It.Is<int>(x => x == homeScore), It.Is<int>(x => x == awayScore)), times: Times.Never);
+    }
+
+    [Test]
     public void UpdateScore_NotExistingGame_ThrowError()
     {
         //arrange
@@ -163,5 +189,74 @@ public class GameServiceTest
         //assert
         action.Should().Throw<InvalidInputException>().WithMessage("invalid game id");
         gameRepository.Verify(x => x.ChangeGameScore(It.Is<Guid>(x => x == gameId), It.Is<int>(x => x == homeScore), It.Is<int>(x => x == awayScore)), times: Times.Never);
+    }
+
+    [Test]
+    public void FinishGame_ExistingGame_FinishGameRequested()
+    {
+        //arrange
+        var gameId = Guid.NewGuid();
+
+        var gameRepository = new Mock<IGameRepository>(MockBehavior.Strict);
+        gameRepository.Setup(x => x.GetGameDetails(It.Is<Guid>(x => x == gameId))).Returns(new GameDetails
+        {
+            Id = gameId,
+            IsFinished = false,
+        });
+        gameRepository.Setup(x => x.FinishGame(It.Is<Guid>(x => x == gameId))).Verifiable();
+
+        var sut = new GameService(gameRepository.Object);
+
+        //act
+        sut.FinishGame(gameId);
+
+        //assert
+        gameRepository.Verify(x => x.FinishGame(It.Is<Guid>(x => x == gameId)), Times.Once);
+    }
+
+    [Test]
+    public void FinishGame_ExistingGameIsFinished_ThrowError()
+    {
+        //arrange
+        var gameId = Guid.NewGuid();
+
+        var gameRepository = new Mock<IGameRepository>(MockBehavior.Strict);
+        gameRepository.Setup(x => x.GetGameDetails(It.Is<Guid>(x => x == gameId))).Returns(new GameDetails
+        {
+            Id = gameId,
+            IsFinished = true,
+        });
+        gameRepository.Setup(x => x.FinishGame(It.Is<Guid>(x => x == gameId))).Verifiable();
+
+        var sut = new GameService(gameRepository.Object);
+
+        //act
+        var action = () => sut.FinishGame(gameId);
+
+        //assert
+        action.Should().Throw<InvalidRequestException>().WithMessage("game is already finished");
+
+        //assert
+        gameRepository.Verify(x => x.FinishGame(It.Is<Guid>(x => x == gameId)), Times.Never);
+    }
+
+    [Test]
+    public void FinishGame_NotExistingGame_ThrowError()
+    {
+        //arrange
+        var gameId = Guid.NewGuid();
+
+        var gameRepository = new Mock<IGameRepository>(MockBehavior.Strict);
+        gameRepository.Setup(x => x.GetGameDetails(It.Is<Guid>(x => x == gameId))).Returns(value: null);
+        gameRepository.Setup(x => x.FinishGame(It.Is<Guid>(x => x == gameId))).Verifiable();
+
+        var sut = new GameService(gameRepository.Object);
+
+        //act
+        var action = () => sut.FinishGame(gameId);
+
+        //assert
+        action.Should().Throw<InvalidInputException>().WithMessage("invalid game id");
+        gameRepository.Verify(x => x.FinishGame(It.Is<Guid>(x => x == gameId)), times: Times.Never);
     }
 }
