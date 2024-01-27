@@ -25,7 +25,7 @@ public class GameSummaryServiceTest
     }
 
     [Test]
-    public void GetInProgress_GamesOrderedByTotalScore_OutputInExpectedOrder()
+    public void GetInProgress_RandomOrderForGames_OutputInExpectedOrder()
     {
         //arrange
         var getGameSummariesOutput = new List<GameSummary>();
@@ -59,7 +59,7 @@ public class GameSummaryServiceTest
     }
 
     [Test]
-    public void GetInProgress_NotFinishedGamesAreNotPresent_OutputOnlyInProgressGames()
+    public void GetInProgress_BothFinishedAndInProgressGames_OutputOnlyInProgressGames()
     {
         //arrange
         var getGameSummariesOutput = new List<GameSummary>();

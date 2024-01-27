@@ -26,7 +26,7 @@ public class GameService : IGameService
 
         if (_gameRepository.IsGameInProgress(homeTeam, awayTeam))
         {
-            throw new InvalidRequestException("game is in progress");
+            throw new GameBetweeTeamsIsInProgressException();
         }
 
         return _gameRepository.AddGame(homeTeam, awayTeam);
@@ -34,16 +34,16 @@ public class GameService : IGameService
 
     public void UpdateScore(Guid id, int homeScore, int awayScore)
     {
-        var game = _gameRepository.GetGameDetails(id);
+        var gameState = _gameRepository.GetGameState(id);
 
-        if (game is null)
+        if (gameState is null)
         {
-            throw new InvalidInputException("invalid game id");
+            throw new GameNotFoundException();
         }
 
-        if (game.IsFinished)
+        if (gameState.IsFinished)
         {
-            throw new InvalidRequestException("can not change score of finished game");
+            throw new GameIsFinishedException();
         }
 
         _gameRepository.ChangeGameScore(id, homeScore, awayScore);
@@ -51,16 +51,16 @@ public class GameService : IGameService
 
     public void FinishGame(Guid id)
     {
-        var game = _gameRepository.GetGameDetails(id);
+        var gameState = _gameRepository.GetGameState(id);
 
-        if (game is null)
+        if (gameState is null)
         {
-            throw new InvalidInputException("invalid game id");
+            throw new GameNotFoundException();
         }
 
-        if (game.IsFinished)
+        if (gameState.IsFinished)
         {
-            throw new InvalidRequestException("game is already finished");
+            throw new GameIsFinishedException();
         }
 
         _gameRepository.FinishGame(id);

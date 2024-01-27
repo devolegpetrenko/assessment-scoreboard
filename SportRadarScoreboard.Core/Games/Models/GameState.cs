@@ -1,6 +1,6 @@
 ﻿namespace SportRadarScoreboard.Core.Games.Models;
 
-public class GameDetails
+public class GameState
 {
     public Guid Id { get; set; }
     public bool IsFinished { get; set; }

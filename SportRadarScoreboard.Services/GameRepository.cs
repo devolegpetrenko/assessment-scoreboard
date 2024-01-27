@@ -52,16 +52,11 @@ public class GameRepository : IGameRepository
         game.IsFinished = true;
     }
 
-    public GameDetails? GetGameDetails(Guid id)
+    public GameState? GetGameState(Guid id) => _games.Select(x => new GameState
     {
-        return _games
-            .Select(x => new GameDetails
-            {
-                IsFinished = x.IsFinished,
-                Id = x.Id
-            })
-            .FirstOrDefault(x => x.Id == id);
-    }
+        IsFinished = x.IsFinished,
+        Id = x.Id
+    }).FirstOrDefault(x => x.Id == id);
 
     public List<GameSummary> GetGameSummaries() => _games.Join(
         _gameScores,
@@ -77,16 +72,8 @@ public class GameRepository : IGameRepository
             IsFinished = g.IsFinished,
         }).ToList();
 
-    public bool IsGameInProgress(string homeTeam, string awayTeam)
-    {
-        return _games.Any(x =>
-            !x.IsFinished
-            && string.Equals(x.HomeTeam, homeTeam, StringComparison.InvariantCultureIgnoreCase)
-            && string.Equals(x.AwayTeam, awayTeam, StringComparison.InvariantCultureIgnoreCase));
-    }
-
-    public bool IsGameInProgress(Guid id)
-    {
-        return _games.Any(x => x.Id == id && x.IsFinished);
-    }
+    public bool IsGameInProgress(string homeTeam, string awayTeam) => _games.Any(x =>
+        !x.IsFinished
+        && string.Equals(x.HomeTeam, homeTeam, StringComparison.InvariantCultureIgnoreCase)
+        && string.Equals(x.AwayTeam, awayTeam, StringComparison.InvariantCultureIgnoreCase));
 }
