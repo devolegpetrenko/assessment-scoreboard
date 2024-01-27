@@ -17,7 +17,7 @@ public class GameRepository : IGameRepository
 
     public Guid AddGame(string homeTeam, string awayTeam)
     {
-        var id = new Guid();
+        var id = Guid.NewGuid();
 
         _games.Add(new Game
         {
@@ -49,7 +49,7 @@ public class GameRepository : IGameRepository
     public void FinishGame(Guid id)
     {
         var game = _games.FirstOrDefault(x => x.Id == id);
-        game.Finished = true;
+        game.IsFinished = true;
     }
 
     public GameDetails? GetGameDetails(Guid id)
@@ -57,27 +57,36 @@ public class GameRepository : IGameRepository
         return _games
             .Select(x => new GameDetails
             {
-                IsFinished = x.Finished,
+                IsFinished = x.IsFinished,
                 Id = x.Id
             })
             .FirstOrDefault(x => x.Id == id);
     }
 
-    public void GetNotFinishedGames()
-    {
-        throw new NotImplementedException();
-    }
+    public List<GameSummary> GetGameSummaries() => _games.Join(
+        _gameScores,
+        g => g.Id,
+        gs => gs.GameId,
+        (g, gs) => new GameSummary
+        {
+            Id = g.Id,
+            HomeTeam = g.HomeTeam,
+            AwayTeam = g.AwayTeam,
+            Score = new Score(gs.Home, gs.Away),
+            Started = g.Started,
+            IsFinished = g.IsFinished,
+        }).ToList();
 
     public bool IsGameInProgress(string homeTeam, string awayTeam)
     {
         return _games.Any(x =>
-            !x.Finished
+            !x.IsFinished
             && string.Equals(x.HomeTeam, homeTeam, StringComparison.InvariantCultureIgnoreCase)
             && string.Equals(x.AwayTeam, awayTeam, StringComparison.InvariantCultureIgnoreCase));
     }
 
     public bool IsGameInProgress(Guid id)
     {
-        return _games.Any(x => x.Id == id && x.Finished);
+        return _games.Any(x => x.Id == id && x.IsFinished);
     }
 }

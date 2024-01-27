@@ -1,0 +1,53 @@
+﻿@rendermode InteractiveServer
+@using SportRadarScoreboard.Core.Games.Models
+@inject IGameService GameService
+
+<div class="game-actions-container">
+    <div class="update-score-action-container">
+        <input type="number" @bind-value="@_newHomeScore" class="form-control" placeholder="home score">
+        <input type="number" @bind-value="@_newAwayScore" class="form-control" placeholder="away score">
+        <button class="btn btn-warning" @onclick="() => UpdateScore(Game.Id)">update score</button>
+    </div>
+    <div>
+        <button class="btn btn-danger" @onclick="() => FinishGame(Game.Id)">finish game</button>
+    </div>
+</div>
+
+<style>
+    .game-actions-container {
+        display: flex;
+        gap: 48px;
+    }
+
+    .update-score-action-container {
+        display: flex;
+        gap: 8px;
+    }
+
+        .update-score-action-container input {
+            max-width: 80px;
+            font-family: monospace;
+        }
+</style>
+
+@code {
+    [Parameter] public GameSummary Game { get; set; }
+    [Parameter] public EventCallback<string> OnGameAction { get; set; }
+
+    int _newHomeScore { get; set; }
+    int _newAwayScore { get; set; }
+
+    void UpdateScore(Guid id)
+    {
+        GameService.UpdateScore(id, _newHomeScore, _newAwayScore);
+
+        OnGameAction.InvokeAsync("update-score");
+    }
+
+    void FinishGame(Guid id)
+    {
+        GameService.FinishGame(id);
+
+        OnGameAction.InvokeAsync("finish");
+    }
+}

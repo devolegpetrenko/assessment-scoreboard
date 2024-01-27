@@ -10,5 +10,5 @@ public interface IGameRepository
     bool IsGameInProgress(Guid id);
     void ChangeGameScore(Guid id, int homeScore, int awayScore);
     void FinishGame(Guid id);
-    void GetNotFinishedGames();
+    List<GameSummary> GetGameSummaries();
 }

@@ -1,5 +1,4 @@
 ﻿using SportRadarScoreboard.Core.Games;
-using SportRadarScoreboard.Core.Games.Models;
 using SportRadarScoreboard.Services.Exceptions;
 
 namespace SportRadarScoreboard.Services;
@@ -65,10 +64,5 @@ public class GameService : IGameService
         }
 
         _gameRepository.FinishGame(id);
-    }
-
-    public List<GameModel> GetInProgressSummary()
-    {
-        throw new NotImplementedException();
     }
 }

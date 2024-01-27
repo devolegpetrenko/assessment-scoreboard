@@ -1,6 +1,12 @@
+using SportRadarScoreboard.Core.Games;
+using SportRadarScoreboard.Services;
 using SportRadarScoreboard.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<IGameService, GameService>();
+builder.Services.AddScoped<IGameSummaryService, GameSummaryService>();
+builder.Services.AddSingleton<IGameRepository, GameRepository>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

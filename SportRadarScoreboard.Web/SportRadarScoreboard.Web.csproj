@@ -6,4 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SportRadarScoreboard.Core\SportRadarScoreboard.Core.csproj" />
+    <ProjectReference Include="..\SportRadarScoreboard.Services\SportRadarScoreboard.Services.csproj" />
+  </ItemGroup>
+
 </Project>

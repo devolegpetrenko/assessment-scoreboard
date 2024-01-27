@@ -1,7 +1,80 @@
 ﻿@page "/"
+@rendermode InteractiveServer
+@using SportRadarScoreboard.Core.Games.Models
+@inject IGameService GameService
+@inject IGameSummaryService GameSummaryService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Scoreboard</PageTitle>
 
-<h1>Hello, world!</h1>
+@if (_games == null || _games.Count == 0)
+{
+    <p><em>no games</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>home team</th>
+                <th>away team</th>
+                <th>score</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var game in _games)
+            {
+                <tr>
+                    <td>@game.HomeTeam</td>
+                    <td>@game.AwayTeam</td>
+                    <td>@game.Score.Home - @game.Score.Away</td>
+                    <td>
+                        <GameActions Game="game" OnGameAction="RefreshGames"></GameActions>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
-Welcome to your new app.
+<div class="bottom-actions">
+    <input type="text" class="form-control" placeholder="home team" @bind-value="@_newHomeTeamName">
+    <input type="text" class="form-control" placeholder="away team" @bind-value="@_newAwayTeamName">
+    <button class="btn btn-primary" @onclick="StartGame">start game</button>
+</div>
+
+<style>
+    .bottom-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+        .bottom-actions input {
+            max-width: 240px;
+        }
+</style>
+
+@code {
+    List<GameSummary> _games;
+    string _newHomeTeamName = "Mexico";
+    string _newAwayTeamName = "Canada";
+
+    protected override void OnInitialized()
+    {
+        RefreshGames();
+
+        base.OnInitialized();
+    }
+
+    void StartGame()
+    {
+        GameService.StartGame(_newHomeTeamName, _newAwayTeamName);
+
+        RefreshGames();
+    }
+
+    void RefreshGames()
+    {
+        _games = GameSummaryService.GetInProgress();
+    }
+}

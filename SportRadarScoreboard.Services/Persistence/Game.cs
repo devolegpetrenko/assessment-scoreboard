@@ -8,5 +8,5 @@ public class Game
     public string AwayTeam { get; set; }
 
     public DateTime Started { get; set; }
-    public bool Finished { get; set; }
+    public bool IsFinished { get; set; }
 }
